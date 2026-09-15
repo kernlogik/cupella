@@ -1,0 +1,83 @@
+---
+title: "Cupella Telemetrie Report"
+date: today
+date-format: "DD.MM.YYYY"
+format:
+  html:
+    theme: cosmo
+    toc: true
+    embed-resources: true
+    code-fold: true
+execute:
+  echo: false
+  warning: false
+---
+
+```{python}
+import polars as pl
+from IPython.display import Markdown
+
+# 1. Daten aus Gold einlesen
+df = pl.read_parquet("../data/gold/sensor_hourly.parquet")
+
+active_devs = df["device_id"].n_unique()
+total_samples = df["sample_count"].sum()
+avg_temp = round(float(df["temp_avg"].mean()), 2)
+```
+
+## Übersicht
+
+| Kennzahl | Wert |
+|---|---|
+| **Aktive Sensoren** | `{python} active_devs` |
+| **Erfasste Samples** | `{python} total_samples` |
+| **Ø Temperatur Gesamt** | `{python} avg_temp` °C |
+
+---
+
+## Stündliche Messwerte
+
+```{python}
+df_display = df.select(
+    pl.col("window_start").dt.strftime("%d.%m. %H:%M").alias("Zeit"),
+    pl.col("device_id").alias("Gerät"),
+    pl.col("sample_count").alias("Samples"),
+    pl.col("temp_min").alias("Min (°C)"),
+    pl.col("temp_avg").alias("Ø Temp (°C)"),
+    pl.col("temp_max").alias("Max (°C)"),
+    pl.col("humidity_avg").alias("Ø Feuchte (%)"),
+)
+
+df_display
+```
+
+## Temperaturverlauf & 3h-Prognose
+
+```{python}
+import matplotlib.pyplot as plt
+import polars as pl
+
+df_plot = pl.read_parquet("../data/gold/sensor_forecast.parquet")
+
+plt.style.use("seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default")
+fig, ax = plt.subplots(figsize=(9, 4), dpi=120)
+
+for (device_id,), group in df_plot.group_by(["device_id"]):
+    # Historie (ist_forecast == False)
+    hist = group.filter(~pl.col("is_forecast")).sort("window_start")
+    ax.plot(hist["window_start"].to_list(), hist["temp_avg"].to_list(), marker="o", label=f"{device_id} (Ist)")
+    
+    # Vorhersage (is_forecast == True)
+    fc = group.filter(pl.col("is_forecast")).sort("window_start")
+    if not fc.is_empty():
+        # Letzten Ist-Punkt für nahtlosen Linienübergang anhängen
+        x_fc = [hist["window_start"][-1]] + fc["window_start"].to_list()
+        y_fc = [hist["temp_avg"][-1]] + fc["temp_avg"].to_list()
+        ax.plot(x_fc, y_fc, linestyle="--", alpha=0.8, label=f"{device_id} (Prognose)")
+
+ax.set_ylabel("Temperatur (°C)")
+ax.set_title("Temperaturverlauf & 3h-Prognose")
+ax.legend(frameon=True)
+plt.tight_layout()
+plt.show()
+```

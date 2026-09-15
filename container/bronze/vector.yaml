@@ -2,7 +2,8 @@ sources:
   http_in:
     type: http_server
     address: 0.0.0.0:8080
-    encoding: json
+    decoding:
+      codec: json
 
   prom_in:
     type: prometheus_remote_write

@@ -1,0 +1,27 @@
+FROM ghcr.io/quarto-dev/quarto:latest
+
+# Python und Pip sicherstellen
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-pip \
+    python3-venv \
+    && rm -rf /var/lib/apt/lists/*
+
+# Notwendige Bibliotheken für Quarto + Polars
+RUN pip3 install --no-cache-dir \
+    jupyter \
+    ipykernel \
+    tabulate \
+    polars \
+    pyarrow \
+    pandas \
+    duckdb \
+    matplotlib \
+    seaborn \
+    plotly \
+    scikit-learn \
+    scipy
+
+WORKDIR /workspace
+
+ENTRYPOINT ["quarto"]
+CMD ["render", "reports/telemetry.qmd", "--output-dir", "data/gold/"]
