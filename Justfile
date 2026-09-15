@@ -32,7 +32,7 @@ build:
   # Build Container Images
   podman build -t cupella-bronze container/bronze/
   podman build -t cupella-tasks container/tasks/
-  #podman build -t cupella-report container/report/
+  podman build -t cupella-report container/report/
 
 # BRONZE Step: Ingest raw data
 bronze:
@@ -65,6 +65,14 @@ report:
         -w /workspace \
         cupella-report \
         render reports/telemetry.qmd --output-dir output
+
+test:
+    @just bronze && sleep 2
+    @just stream-data
+    @just silver
+    @just gold
+    @just report
+    @just stop
 
 # Start local Caddy server for contents
 serve:
