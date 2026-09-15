@@ -1,0 +1,26 @@
+sources:
+  http_in:
+    type: http_server
+    address: 0.0.0.0:8080
+    encoding: json
+
+  prom_in:
+    type: prometheus_remote_write
+    address: 0.0.0.0:9090
+
+sinks:
+  events_out:
+    type: file
+    inputs: ["http_in"]
+    path: "/data/bronze/%Y-%m-%d/events-%H.jsonl"
+    compression: none # optional: zstd
+    encoding:
+      codec: json
+
+  metrics_out:
+    type: file
+    inputs: ["prom_in"]
+    path: "/data/bronze/%Y-%m-%d/metrics-%H.jsonl"
+    compression: none
+    encoding:
+      codec: json

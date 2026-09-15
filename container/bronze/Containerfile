@@ -1,0 +1,9 @@
+FROM docker.io/timberio/vector:latest-alpine
+
+WORKDIR /etc/vector
+COPY vector.yaml /etc/vector/vector.yaml
+
+VOLUME /data/bronze
+EXPOSE 8080 9090
+
+ENTRYPOINT ["vector", "--config", "/etc/vector/vector.yaml"]
