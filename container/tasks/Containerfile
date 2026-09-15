@@ -15,9 +15,7 @@ COPY pyproject.toml uv.lock ./
 
 RUN uv sync --frozen --no-dev --no-install-project
 
-# 3. Projektcode kopieren
 COPY tasks tasks
 
-# Virtuelle Umgebung im PATH aktiv -> Entrypoint ruft direkt venv-Python auf
 ENTRYPOINT ["python"]
 CMD ["-i"]

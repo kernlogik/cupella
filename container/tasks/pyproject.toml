@@ -1,10 +1,12 @@
 [project]
-name = "silver"
+name = "tasks"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "jinja2>=3.1.6",
+    "numpy>=2.5.3",
     "polars>=1.44.2",
+    "scikit-learn>=1.9.1",
 ]

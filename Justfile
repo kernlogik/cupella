@@ -31,8 +31,7 @@ stream-data:
 build:
   # Build Container Images
   podman build -t cupella-bronze container/bronze/
-  podman build -t cupella-silver container/silver/
-  podman build -t cupella-gold container/gold/
+  podman build -t cupella-tasks container/tasks/
   #podman build -t cupella-report container/report/
 
 # BRONZE Step: Ingest raw data
@@ -48,16 +47,16 @@ bronze:
 silver:
     podman run --rm \
         -v {{ invocation_directory() }}/data:/app/data:Z \
-        cupella-silver -m tasks.curate
+        cupella-tasks -m tasks.curate
 
 # GOLD Step: Aggregate data, Create models
 gold:
     podman run --rm \
         -v {{ invocation_directory() }}/data:/app/data:Z \
-        cupella-gold -m tasks.extract
+        cupella-tasks -m tasks.extract
     podman run --rm \
         -v {{ invocation_directory() }}/data:/app/data:Z \
-        cupella-gold -m tasks.forecast
+        cupella-tasks -m tasks.forecast
 
 # Generate report.
 report:
