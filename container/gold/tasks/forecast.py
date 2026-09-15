@@ -7,7 +7,7 @@ import polars as pl
 from sklearn.linear_model import Ridge
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-WORK_DIR = f"{os.getenv('HOME')}/Projects/cupella"
+WORK_DIR = os.getcwd()
 
 
 def forecast_sensor(df_device: pl.DataFrame, steps_ahead: int = 3) -> pl.DataFrame:

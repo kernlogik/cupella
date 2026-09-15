@@ -1,11 +1,11 @@
-import os
 from datetime import datetime, timezone
 import json
+import os
 
 import polars as pl
 from jinja2 import Template
 
-WORK_DIR = f"{os.getenv('HOME')}/Projects/cupella"
+WORK_DIR = os.getcwd()
 
 # 1. Schema explizit vorgeben (verhindert unbemerkte Typ-Drifts)
 SCHEMA = {

@@ -3,7 +3,7 @@ import polars as pl
 
 import os
 
-WORK_DIR = f"{os.getenv('HOME')}/Projects/cupella"
+WORK_DIR = os.getcwd()
 
 
 

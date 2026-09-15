@@ -31,7 +31,9 @@ stream-data:
 build:
   # Build Container Images
   podman build -t cupella-bronze container/bronze/
-  podman build -t cupella-report container/report/
+  podman build -t cupella-silver container/silver/
+  podman build -t cupella-gold container/gold/
+  #podman build -t cupella-report container/report/
 
 # BRONZE Step: Ingest raw data
 bronze:
@@ -40,17 +42,22 @@ bronze:
     -p 8080:8080 \
     -p 9090:9090 \
     -v ./data/bronze:/data/bronze:Z \
-    cupella-bronze
+    localhost/cupella-bronze
 
 # SILVER Step: Check data consistency and create OLAP file.
 silver:
-    cd container/silver && uv run python3 -m tasks.curate
+    podman run --rm \
+        -v {{ invocation_directory() }}/data:/app/data:Z \
+        cupella-silver -m tasks.curate
 
 # GOLD Step: Aggregate data, Create models
 gold:
-    cd container/gold && \
-    uv run python3 -m tasks.extract && \
-    uv run python3 -m tasks.forecast
+    podman run --rm \
+        -v {{ invocation_directory() }}/data:/app/data:Z \
+        cupella-gold -m tasks.extract
+    podman run --rm \
+        -v {{ invocation_directory() }}/data:/app/data:Z \
+        cupella-gold -m tasks.forecast
 
 # Generate report.
 report:
