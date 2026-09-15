@@ -23,13 +23,13 @@ jobs:
         include:
           - image: cupella-bronze
             context: containers/bronze
-            file: containers/bronze/Containerfile
+            file: container/bronze/Containerfile
           - image: cupella-tasks
             context: .
-            file: containers/tasks/Containerfile
+            file: container/tasks/Containerfile
           - image: cupella-report
-            context: containers/report
-            file: containers/report/Containerfile
+            context: container/report
+            file: container/report/Containerfile
 
     steps:
       - name: Checkout Code
