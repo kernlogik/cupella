@@ -41,7 +41,6 @@ flowchart TD
 
 ```
 
----
 
 ## Architectural Highlights
 
@@ -51,7 +50,6 @@ flowchart TD
 * **Serving & Reports:** High-fidelity scientific and executive reporting compiled from [Quarto](https://quarto.org) to responsive HTML and modern, publication-ready PDF documents via [Typst](https://typst.app).
 * **Documentation & Gateway:** Lightweight project documentation built with [Zola](https://www.getzola.org) (featuring offline Mermaid.js support) served alongside pipeline artifacts via a unified [Caddy](https://caddyserver.com) reverse proxy.
 
----
 
 ## Tech Stack
 
@@ -76,24 +74,23 @@ flowchart TD
 │   ├── bronze/             # Vector ingestion daemon
 │   ├── report/             # Quarto + Typst runtime
 │   └── tasks/              # Unified Python/uv worker runtime
+|
 ├── data/                   # Git-ignored pipeline artifacts
 │   ├── bronze/             # Raw JSONL files
 │   ├── silver/             # Curated Parquet & audit report
 │   └── gold/               # Aggregated & forecast Parquet
+|
 ├── docs/                   # Zola documentation site
 │   ├── content/
-│   ├── static/js/          # Offline Mermaid.js assets
 │   └── templates/
-├── gold/                   # Gold analytical tasks
-├── silver/                 # Silver curation tasks
-├── reports/                # Quarto (.qmd) report definitions
-├── pyproject.toml          # Central project dependency spec
-├── uv.lock                 # Deterministic dependency lockfile
+|
+├── web/                    # Landing page
+├── test/                   # Test data generator
+├── Caddyfile               # Web server configuration
 └── Justfile                # Project command orchestrator
 
 ```
 
----
 
 ## Prerequisites
 
@@ -101,7 +98,6 @@ flowchart TD
 * **Container Engine:** [`podman`](https://podman.io/) (or `docker`)
 * **Python Toolchain (optional for host execution):** [`uv`](https://github.com/astral-sh/uv)
 
----
 
 ## Quick Start
 
