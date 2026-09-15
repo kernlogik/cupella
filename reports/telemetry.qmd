@@ -8,6 +8,13 @@ format:
     toc: true
     embed-resources: true
     code-fold: true
+  typst:
+    papersize: a4
+    margin:
+      x: 2cm
+      y: 2.5cm
+    toc: true
+    number-sections: true
 execute:
   echo: false
   warning: false
@@ -66,7 +73,7 @@ for (device_id,), group in df_plot.group_by(["device_id"]):
     # Historie (ist_forecast == False)
     hist = group.filter(~pl.col("is_forecast")).sort("window_start")
     ax.plot(hist["window_start"].to_list(), hist["temp_avg"].to_list(), marker="o", label=f"{device_id} (Ist)")
-    
+
     # Vorhersage (is_forecast == True)
     fc = group.filter(pl.col("is_forecast")).sort("window_start")
     if not fc.is_empty():

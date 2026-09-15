@@ -53,7 +53,7 @@ report:
         -v "$(pwd):/workspace:Z" \
         -w /workspace \
         cupella-report \
-        render reports/telemetry.qmd
+        render reports/telemetry.qmd --output-dir output
 
 # Stop the ingestion daemon
 stop:
