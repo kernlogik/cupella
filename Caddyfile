@@ -1,0 +1,33 @@
+:3000 {
+    encode gzip
+
+    # 1. Landing Hub
+    handle / {
+        root * web
+        file_server
+    }
+
+    # 2. Zola Dokumentation
+    handle_path /docs* {
+        root * docs/public
+        file_server
+    }
+
+    # 3. Silver Pipeline Audit
+    handle_path /audit* {
+        root * data/silver
+        file_server
+    }
+
+    # 4. Quarto Reports (HTML & PDF)
+    handle_path /reports* {
+        root * reports/output
+        file_server
+    }
+
+    # Fallback für Root-Assets
+    handle {
+        root * web
+        file_server
+    }
+}

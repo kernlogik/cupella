@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cupella Workspace</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #2563eb;
+    }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      max-width: 800px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+    }
+    h1 { font-size: 1.75rem; margin-bottom: 0.25rem; }
+    p.sub { color: var(--muted); margin-top: 0; margin-bottom: 2rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .tag { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--accent); }
+    .title { font-size: 1.1rem; font-weight: 600; margin: 0.5rem 0 0.25rem 0; }
+    .desc { font-size: 0.85rem; color: var(--muted); line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <h1>Cupella Telemetrie Hub</h1>
+  <p class="sub">Lokale Pipeline-Artefakte, Systemdokumentation und Audits</p>
+
+  <div class="grid">
+    <a class="card" href="/docs/">
+      <div class="tag">Docs</div>
+      <div class="title">Zola Doku</div>
+      <div class="desc">Architektur, Datenmodelle und Pipeline-Spezifikation.</div>
+    </a>
+
+    <a class="card" href="/audit/report.html">
+      <div class="tag">Silver Stage</div>
+      <div class="title">Pipeline Audit</div>
+      <div class="desc">Deduplizierung, Outlier-Filter und Ingestion-Metriken.</div>
+    </a>
+
+    <a class="card" href="/reports/telemetry.html">
+      <div class="tag">Gold Stage</div>
+      <div class="title">Report (HTML)</div>
+      <div class="desc">Aggregierte Zeitreihen & interaktiver 3h-Forecast.</div>
+    </a>
+
+    <a class="card" href="/reports/telemetry.pdf" target="_blank">
+      <div class="tag">Gold Stage</div>
+      <div class="title">Report (PDF)</div>
+      <div class="desc">Druckfertiger Typst-Export mit Custom Tabellen-Layout.</div>
+    </a>
+  </div>
+</body>
+</html>

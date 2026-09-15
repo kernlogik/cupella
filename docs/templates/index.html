@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>{{ config.title }}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #0f172a; }
+    nav a { font-size: 0.875rem; color: #2563eb; text-decoration: none; }
+    .mermaid { display: flex; justify-content: center; margin: 2rem 0; }
+  </style>
+</head>
+<body>
+  <nav><a href="/">← Zurück zum Cupella Hub</a></nav>
+  <h1>{{ section.title | default(value=config.title) }}</h1>
+  {{ section.content | safe }}
+
+
+    <script src="/docs/js/mermaid.min.js"></script>
+    <script>
+        async function renderMermaid() {
+        // 1. Initialisieren
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'neutral',
+            securityLevel: 'loose'
+        });
+
+        // 2. data-lang="mermaid" auf dem <code>-Element suchen
+        const codeBlocks = document.querySelectorAll("code[data-lang='mermaid']");
+        if (codeBlocks.length === 0) return;
+
+        const containers = [];
+        codeBlocks.forEach((code) => {
+            const pre = code.closest("pre") || code;
+            const container = document.createElement("div");
+            container.className = "mermaid";
+            // textContent decodiert automatisch &gt;, &lt; etc.
+            container.textContent = code.textContent.trim();
+            pre.replaceWith(container);
+            containers.push(container);
+        });
+
+        // 3. Nodes direkt rendern
+        try {
+            await mermaid.run({ nodes: containers });
+        } catch (err) {
+            console.error("Mermaid Render Error:", err);
+        }
+        }
+
+        if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", renderMermaid);
+        } else {
+        renderMermaid();
+        }
+    </script>
+</body>
+</html>

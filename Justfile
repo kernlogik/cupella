@@ -3,10 +3,15 @@
 install:
     curl -sL https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.42/quarto-1.6.42-linux-amd64.tar.gz | tar -xz -C ~/.local/
     curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | bash -s -- -b ~/.local/bin
+    eget getzola/zola --to $HOME/.local/bin
 
 # Build from CI/CD workflow locally
 act:
   act
+
+# Generate documentation
+docs:
+    zola --root docs build
 
 # Generate JSONL file
 test-data:
@@ -54,6 +59,10 @@ report:
         -w /workspace \
         cupella-report \
         render reports/telemetry.qmd --output-dir output
+
+# Start local Caddy server for contents
+serve:
+    caddy run
 
 # Stop the ingestion daemon
 stop:
