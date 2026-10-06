@@ -64,6 +64,7 @@ def forecast_sensor(df_device: pl.DataFrame, steps_ahead: int = 3) -> pl.DataFra
 
 
 def run_forecast(
+    steps_ahead: int = 3,
     input_parquet: str = f"{WORK_DIR}/data/gold/sensor_hourly.parquet",
     output_parquet: str = f"{WORK_DIR}/data/gold/sensor_forecast.parquet",
 ):
@@ -86,7 +87,7 @@ def run_forecast(
 
     forecast_dfs = []
     for (device_id,), group in df.group_by(["device_id"]):
-        fc = forecast_sensor(group, steps_ahead=3)
+        fc = forecast_sensor(group, steps_ahead=steps_ahead)
         if not fc.is_empty():
             forecast_dfs.append(fc)
 
@@ -98,4 +99,8 @@ def run_forecast(
 
 
 if __name__ == "__main__":
-    run_forecast()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Gold: Forecast")
+    parser.add_argument("--steps-ahead", type=int, default=3)
+    run_forecast(steps_ahead=parser.parse_args().steps_ahead)

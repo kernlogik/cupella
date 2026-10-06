@@ -47,7 +47,7 @@ TEMPLATE = """<!DOCTYPE html>
 </html>"""
 
 
-def process_partition(input_path: str, output_parquet: str, audit_path: str):
+def process_partition(input_path: str, output_parquet: str, audit_path: str, report_path: str):
     # 2. Ingest
     df_raw = pl.read_ndjson(input_path, schema=SCHEMA)
     initial_count = len(df_raw)
@@ -99,13 +99,23 @@ def process_partition(input_path: str, output_parquet: str, audit_path: str):
 
     dt = datetime.fromisoformat(audit_data["processed_at"])
     audit_data["processed_at_human"] = dt.strftime("%d.%m.%Y %H:%M:%S UTC")
-    with open(f"{WORK_DIR}/data/silver/report.html", "w") as f:
+    with open(report_path, "w") as f:
         f.write(Template(TEMPLATE).render(**audit_data))
 
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Bronze -> Silver")
+    parser.add_argument("--date", default="2026-09-15", help="Partition (YYYY-MM-DD)")
+    parser.add_argument("--input", help="Glob der Bronze-JSONL-Dateien")
+    parser.add_argument("--silver-dir", default=f"{WORK_DIR}/data/silver")
+    args = parser.parse_args()
+
+    os.makedirs(args.silver_dir, exist_ok=True)
     process_partition(
-        input_path=f"{WORK_DIR}/data/bronze/2026-09-15/*.jsonl",
-        output_parquet=f"{WORK_DIR}/data/silver/events-2026-09-15.parquet",
-        audit_path=f"{WORK_DIR}/data/silver/audit-2026-09-15.json",
+        input_path=args.input or f"{WORK_DIR}/data/bronze/{args.date}/*.jsonl",
+        output_parquet=f"{args.silver_dir}/events-{args.date}.parquet",
+        audit_path=f"{args.silver_dir}/audit-{args.date}.json",
+        report_path=f"{args.silver_dir}/report.html",
     )

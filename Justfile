@@ -90,6 +90,21 @@ install:
         "data/silver/report.html" \
         "data/gold/sensor_forecast.parquet"
 
+# ---------- DVC-Workflow (siehe dvc.yaml / params.yaml) ----------
+
+# Gesamte Pipeline reproduzieren (nur veraenderte Stages laufen)
+@dvc-repro *args:
+    dvc repro {{args}}
+
+# Pipeline-DAG anzeigen
+@dvc-dag:
+    dvc dag
+
+# Audit-Metriken (und Diff zum letzten Commit)
+@dvc-metrics:
+    dvc metrics show
+    dvc metrics diff
+
 # Start local Caddy server for contents
 @serve:
     caddy run

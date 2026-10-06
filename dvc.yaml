@@ -1,0 +1,66 @@
+# Cupella Medallion Pipeline als DVC-Workflow.
+# Ausführen: `dvc repro`   |   DAG: `dvc dag`   |   Metriken: `dvc metrics show`
+# Python-Stages laufen via uv gegen container/tasks (identische Deps wie das OCI-Image).
+stages:
+  bronze:
+    desc: Synthetische Sensor-Events (ersetzt im Test den Vector-Ingest)
+    cmd: >-
+      python3 test/generator.py
+      -n ${generate.count} --seed ${generate.seed}
+      --start ${generate.partition}T00:00:00+00:00
+      -o data/bronze/${generate.partition}/events-00.jsonl
+    deps:
+      - test/generator.py
+    params:
+      - generate
+    outs:
+      - data/bronze/${generate.partition}
+
+  silver:
+    desc: Dedup, Schema- und Plausibilitätsprüfung -> Parquet + Audit
+    cmd: >-
+      PYTHONPATH=container/tasks uv run --project container/tasks python -m tasks.curate
+      --date ${generate.partition}
+    deps:
+      - container/tasks/tasks/curate.py
+      - data/bronze/${generate.partition}
+    params:
+      - generate.partition
+    outs:
+      - data/silver/events-${generate.partition}.parquet
+      - data/silver/report.html
+    metrics:
+      - data/silver/audit-${generate.partition}.json:
+          cache: false
+
+  gold_hourly:
+    desc: Stündliche Aggregate je Sensor
+    cmd: PYTHONPATH=container/tasks uv run --project container/tasks python -m tasks.extract
+    deps:
+      - container/tasks/tasks/extract.py
+      - data/silver/events-${generate.partition}.parquet
+    outs:
+      - data/gold/sensor_hourly.parquet
+
+  gold_forecast:
+    desc: Ridge-Forecast (Persistence-Fallback bei wenig Historie)
+    cmd: >-
+      PYTHONPATH=container/tasks uv run --project container/tasks python -m tasks.forecast
+      --steps-ahead ${forecast.steps_ahead}
+    deps:
+      - container/tasks/tasks/forecast.py
+      - data/gold/sensor_hourly.parquet
+    params:
+      - forecast
+    outs:
+      - data/gold/sensor_forecast.parquet
+
+  report:
+    desc: Quarto-Report (HTML + Typst-PDF)
+    cmd: quarto render reports/telemetry.qmd --output-dir output
+    deps:
+      - reports/telemetry.qmd
+      - data/gold/sensor_hourly.parquet
+      - data/gold/sensor_forecast.parquet
+    outs:
+      - reports/output
