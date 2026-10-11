@@ -1,0 +1,7 @@
+generate:
+  count: 5000
+  seed: 42
+  partition: "2026-09-15"   # Bronze-Partition (YYYY-MM-DD); Events starten 00:00 UTC
+
+forecast:
+  steps_ahead: 3

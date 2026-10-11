@@ -3,14 +3,15 @@ import argparse
 import json
 import random
 import uuid
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 
 DEVICES = [f"sensor-{x:02d}" for x in range(1, 6)]
 
 
-def generate_stream(count: int, seed: int = 42):
+def generate_stream(count: int, seed: int = 42, start: datetime | None = None):
     random.seed(seed)
-    current_time = datetime.now(timezone.utc) - timedelta(hours=count / 3600)
+    current_time = start or datetime.now(timezone.utc) - timedelta(hours=count / 3600)
     last_record = None
 
     for _ in range(count):
@@ -38,7 +39,7 @@ def generate_stream(count: int, seed: int = 42):
             humidity = None
 
         record = {
-            "event_id": str(uuid.uuid4()),
+            "event_id": str(uuid.UUID(int=random.getrandbits(128), version=4)),
             "timestamp": current_time.isoformat(),
             "device_id": random.choice(DEVICES),
             "payload": {
@@ -63,12 +64,22 @@ def main():
     parser.add_argument(
         "--seed", type=int, default=42, help="Seed für Reproduzierbarkeit"
     )
+    parser.add_argument(
+        "--start",
+        type=datetime.fromisoformat,
+        default=None,
+        help="Startzeitpunkt ISO-8601 (Default: jetzt; für reproduzierbare Läufe setzen)",
+    )
     args = parser.parse_args()
+    if args.start and args.start.tzinfo is None:
+        args.start = args.start.replace(tzinfo=timezone.utc)
 
+    if args.output:
+        Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     out_file = open(args.output, "w", encoding="utf-8") if args.output else None
 
     try:
-        for record in generate_stream(args.count, args.seed):
+        for record in generate_stream(args.count, args.seed, args.start):
             line = json.dumps(record)
             if out_file:
                 out_file.write(line + "\n")

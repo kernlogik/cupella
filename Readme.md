@@ -142,6 +142,25 @@ just test
 
 ```
 
+### 2b. Pipeline mit DVC
+
+Die Medallion-Stages sind zusätzlich als DVC-Workflow in `dvc.yaml` beschrieben
+(Parameter in `params.yaml`). DVC erkennt veränderte Code-, Daten- und Parameter-Abhängigkeiten
+und führt nur die betroffenen Stages neu aus.
+
+```bash
+uv tool install dvc        # einmalig
+dvc repro                  # bronze -> silver -> gold_hourly -> gold_forecast -> report
+dvc dag                    # Abhängigkeitsgraph
+dvc metrics show           # Audit-Kennzahlen (data/silver/audit-*.json)
+dvc exp run -S generate.count=20000   # Experiment mit anderen Parametern
+dvc remote add -d storage <url>       # optional: Remote für `dvc push/pull`
+```
+
+Hinweise: Die `bronze`-Stage ersetzt den Vector-Ingest durch den deterministischen Generator
+(`--seed`/`--start`); der Live-Ingest bleibt über `just bronze` bzw. `just stream-data` möglich.
+Die `report`-Stage benötigt `quarto` auf dem Host.
+
 ### 3. Serve Reports & Documentation
 
 Spin up the local Caddy file server to browse pipeline reports and architecture documentation:
